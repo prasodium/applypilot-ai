@@ -85,7 +85,9 @@ def build_mock_employer() -> FastAPI:
     app.state.submissions = submissions
 
     def base(request: Request) -> str:
-        return str(request.base_url).rstrip("/")
+        # When mounted under a prefix (e.g. /mock-employer) Starlette puts the prefix in scope["root_path"]; include it so every
+        # generated form action and redirect stays inside the mounted site.
+        return f"{request.url.scheme}://{request.url.netloc}{request.scope.get('root_path', '')}".rstrip("/")
 
     def session(request: Request) -> tuple[str, dict[str, Any]]:
         sid = request.cookies.get("mock_sid") or secrets.token_hex(8)

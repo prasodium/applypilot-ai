@@ -103,7 +103,7 @@ class AnswerEngine:
         if scan_for_injection(spec.label + " " + " ".join(spec.options)):
             return needs("This form text contains instruction-like content, so it was not answered automatically. Please answer it yourself.")
         if is_legal(qtype):
-            return needs("This is a legal certification or consent. You must read it and decide yourself; MacGuard never accepts it for you.")
+            return needs("This is a legal certification or consent. You must read it and decide yourself; ApplyPilot never accepts it for you.")
         if is_sensitive(qtype):
             return self._sensitive(spec, qtype, base, needs)
         lib = next((a for a in self.ctx.library if a["question_type"] == qtype.value and not a["sensitive"]), None)

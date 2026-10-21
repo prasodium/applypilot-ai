@@ -14,6 +14,7 @@ def settings(tmp_path) -> Settings:
         upload_dir=tmp_path / "uploads",
         ai_provider="mock",
         mount_mock_employer=False,
+        serve_frontend=False,
         _env_file=None,  # never read a developer's real .env during tests
     )
 

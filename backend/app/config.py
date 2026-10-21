@@ -33,6 +33,9 @@ class Settings(BaseSettings):
     # Where the local mock employer site is reachable. Only this origin has form filling/submission enabled.
     mock_employer_base_url: str = "http://127.0.0.1:8000/mock-employer"
     mount_mock_employer: bool = True  # development convenience; never mounted when app_env=production
+    # Serve the built frontend (frontend/dist) from the backend so one command runs everything. Ignored if the folder does not exist.
+    serve_frontend: bool = True
+    frontend_dist: Path = BACKEND_DIR.parent / "frontend" / "dist"
 
     @property
     def is_production(self) -> bool:

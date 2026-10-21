@@ -40,7 +40,7 @@ def reset_site(mock_site):
 @pytest.fixture()
 def settings(tmp_path, mock_site) -> Settings:  # overrides the conftest fixture
     return Settings(database_url=f"sqlite:///{tmp_path / 't.db'}", upload_dir=tmp_path / "uploads", ai_provider="mock",
-                    mock_employer_base_url=mock_site, mount_mock_employer=False, browser_headless=True, _env_file=None)
+                    mock_employer_base_url=mock_site, mount_mock_employer=False, serve_frontend=False, browser_headless=True, _env_file=None)
 
 
 def submissions(site):

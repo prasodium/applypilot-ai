@@ -207,3 +207,14 @@ def test_prepare_refuses_a_job_from_a_source_that_is_not_enabled(client, profile
     jid = r.json()["job"]["id"]
     client.patch("/api/preferences", json={"allowed_sources": ["manual", "mock"]})
     assert client.post("/api/applications/prepare", json={"job_id": jid}).status_code == 403
+
+
+def test_user_facing_text_names_this_product_only():
+    """Guards against copy-paste leftovers from other projects in messages shown to the user."""
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parent.parent.parent
+    for folder in (root / "backend" / "app", root / "frontend" / "src"):
+        for f in folder.rglob("*"):
+            if f.is_file() and f.suffix in {".py", ".ts", ".tsx"} and "schema.d.ts" not in f.name:
+                assert "macguard" not in f.read_text(errors="ignore").lower(), f"stray product name in {f}"

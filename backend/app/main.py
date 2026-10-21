@@ -133,6 +133,21 @@ def create_app(settings: Settings | None = None, *, migrate: bool = True) -> Fas
         from app.mock_employer.app import build_mock_employer
 
         app.mount("/mock-employer", build_mock_employer())
+
+    dist = settings.frontend_dist.resolve()
+    if settings.serve_frontend and (dist / "index.html").is_file():
+        from fastapi import HTTPException
+        from fastapi.responses import FileResponse
+
+        @app.get("/{full_path:path}", include_in_schema=False)
+        def spa(full_path: str):
+            if full_path.startswith(("api/", "api", "mock-employer")):
+                raise HTTPException(status_code=404, detail="Not found")
+            candidate = (dist / full_path).resolve()
+            if full_path and candidate.is_file() and candidate.is_relative_to(dist):  # never serve outside the build folder
+                return FileResponse(candidate)
+            return FileResponse(dist / "index.html")
+
     return app
 
 
