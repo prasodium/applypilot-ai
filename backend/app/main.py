@@ -14,6 +14,7 @@ from fastapi.responses import JSONResponse
 from pydantic import ValidationError as PydanticValidationError
 from sqlalchemy.orm import Session
 from starlette.exceptions import HTTPException as StarletteHTTPException
+from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from alembic import command
 from app.config import BACKEND_DIR, Settings, get_settings
@@ -86,6 +87,25 @@ def create_app(settings: Settings | None = None, *, migrate: bool = True) -> Fas
         CORSMiddleware, allow_origins=[settings.frontend_origin], allow_credentials=False,
         allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"], allow_headers=["Content-Type", "Idempotency-Key"],
     )
+
+    app.add_middleware(TrustedHostMiddleware, allowed_hosts=settings.allowed_hosts)
+
+    @app.middleware("http")
+    async def cross_origin_guard(request: Request, call_next):
+        """CSRF defence for a cookie-less local API: state-changing requests from a browser must come from this app's own origin.
+
+        CORS only stops other sites from READING responses; it does not stop a page from SENDING a simple cross-site POST. Requests without an
+        Origin header (curl, tests, scripts) are not browser-driven and are allowed.
+        """
+        if request.method in {"POST", "PUT", "PATCH", "DELETE"} and request.url.path.startswith("/api"):
+            origin = request.headers.get("origin")
+            host = request.headers.get("host", "")
+            same_origin = {f"http://{host}", f"https://{host}"}
+            if (origin and origin not in same_origin and origin != settings.frontend_origin) or (
+                not origin and request.headers.get("sec-fetch-site") == "cross-site"
+            ):
+                return JSONResponse({"error": {"code": "cross_origin_blocked", "message": "Cross-site requests are not allowed.", "details": {}}}, status_code=403)
+        return await call_next(request)
 
     @app.middleware("http")
     async def security_headers(request: Request, call_next):

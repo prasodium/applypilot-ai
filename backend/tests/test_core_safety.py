@@ -218,3 +218,33 @@ def test_user_facing_text_names_this_product_only():
         for f in folder.rglob("*"):
             if f.is_file() and f.suffix in {".py", ".ts", ".tsx"} and "schema.d.ts" not in f.name:
                 assert "macguard" not in f.read_text(errors="ignore").lower(), f"stray product name in {f}"
+
+
+# ------------------------------------------------------------------ CSRF / DNS rebinding
+@pytest.mark.parametrize("method,path", [("POST", "/api/applications/1/submit"), ("POST", "/api/applications/1/cancel"), ("PATCH", "/api/preferences"),
+                                         ("DELETE", "/api/data?confirm=DELETE"), ("POST", "/api/jobs/search")])
+def test_cross_site_state_changing_requests_are_blocked(client, method, path):
+    r = client.request(method, path, headers={"Origin": "https://evil.example"}, json={} if method in {"POST", "PATCH"} else None)
+    assert r.status_code == 403 and r.json()["error"]["code"] == "cross_origin_blocked"
+    r = client.request(method, path, headers={"Sec-Fetch-Site": "cross-site"}, json={} if method in {"POST", "PATCH"} else None)
+    assert r.status_code == 403  # a browser that omits Origin still announces cross-site
+
+
+def test_blocked_cross_site_request_has_no_effect(client, profile):
+    client.post("/api/answer-library", json={"question_type": "start_date", "answer_text": "Soon"}, headers={"Origin": "https://evil.example"})
+    assert client.get("/api/answer-library").json() == []
+    client.delete("/api/data?confirm=DELETE", headers={"Origin": "https://evil.example"})
+    assert client.get("/api/profile").json()["legal_name"] == "Alex Example"
+
+
+def test_same_origin_frontend_origin_and_non_browser_requests_are_allowed(client, profile):
+    ok_same = client.patch("/api/preferences", json={"match_threshold": 61}, headers={"Origin": "http://testserver"})
+    ok_front = client.patch("/api/preferences", json={"match_threshold": 62}, headers={"Origin": "http://localhost:5173"})
+    ok_curl = client.patch("/api/preferences", json={"match_threshold": 63})
+    assert (ok_same.status_code, ok_front.status_code, ok_curl.status_code) == (200, 200, 200)
+    assert client.get("/api/health", headers={"Origin": "https://evil.example"}).status_code == 200  # reads are governed by CORS
+
+
+def test_unknown_host_headers_are_rejected(client):
+    assert client.get("/api/health", headers={"Host": "evil.example"}).status_code == 400  # DNS rebinding
+    assert client.get("/api/health", headers={"Host": "localhost:8000"}).status_code == 200

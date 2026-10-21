@@ -25,6 +25,8 @@ class Settings(BaseSettings):
     ai_timeout_seconds: float = 60.0
 
     frontend_origin: str = "http://localhost:5173"
+    # Host headers the server answers to (DNS-rebinding defence). "testserver" is the in-process test client.
+    allowed_hosts: list[str] = ["127.0.0.1", "localhost", "testserver"]
     upload_dir: Path = BACKEND_DIR / "data" / "uploads"
     max_upload_mb: int = 10
     log_level: str = "INFO"
