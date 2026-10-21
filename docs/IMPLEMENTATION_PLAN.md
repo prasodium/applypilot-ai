@@ -52,4 +52,26 @@ Done: React UI for every specified page, keyboard and axe-core checks, security 
 Not done: PostgreSQL profile and Docker (optional in the spec), dependency vulnerability audit, Kanban view, VoiceOver/manual screen-reader testing, responsive layout checked only by construction (not on a phone), real-site integrations.
 
 ## Verification record
-(Filled in from the last clean-clone run: see the end of this file.)
+
+**2026-10-21, macOS on Apple Silicon, Python 3.15.0, Node 26.11.1, Playwright Chromium (headless).**
+The project was cloned fresh from Git and set up by following the README commands exactly (venv, `pip install -e ".[dev]"`, `playwright install chromium`, `cp .env.example .env`, `alembic upgrade head`, `npm install`, `npm run build`), then started with `scripts/run-local.sh`.
+
+| Check | Result |
+|---|---|
+| `alembic upgrade head` on a fresh checkout | passes (**the first clean-clone attempt failed here** because `data/` did not exist; fixed in `alembic/env.py` and covered by a regression test) |
+| Live server from `run-local.sh` | `/api/health` ok, UI served, mock employer served, API docs served, mock search created 8 jobs |
+| `ruff check app tests` / `mypy app` | clean (54 source files) |
+| Backend `pytest` (unit, integration, real-browser, UI end-to-end) | **214 passed** in ~61 s |
+| Frontend `eslint`, `tsc`, `vitest`, `vite build` | clean, **13 passed**, build ok (101 kB gzipped JS) |
+| axe-core (WCAG 2.0 A/AA) on dashboard, jobs, job detail, application review, tracker, settings, activity, profile, résumé studio | no critical or serious violations |
+| Secret scan of tracked files | only intentionally fake strings in tests; no `.env`, database or uploads tracked |
+
+Bugs found by this verification work and fixed along the way (each has a regression test): stale relationship caches producing an incomplete master résumé; mock AI answering unrelated questions from job skills; yes/no skill questions classified as essays; auto-submit state not flushed before the compare-and-set; pause/cancel ignored while waiting for input; an unused state-machine edge that could skip approval; log redaction only covering existing handlers; **cross-site POSTs could reach no-body endpoints such as submit (CSRF guard and Host check added)**; the mock employer ignoring its mount prefix; Arbeitnow remote listings reported as "unknown".
+
+**Not verified** (not claimed): behaviour on Linux/Windows or Python/Node versions other than the above; a real AI provider; any real employer site; screen-reader testing by a human; responsive layout on a phone; dependency vulnerability scans; PostgreSQL.
+
+## Next phase
+1. Add a real, permitted integration path for one application site with its own fixture, login/verification pausing and `last_tested` date.
+2. Run `npm audit` / `pip-audit`, and add an automatic retention purge.
+3. Exercise the OpenAI-compatible provider against a live endpoint with a real key.
+4. Optional: Kanban view, PostgreSQL profile, Docker.
