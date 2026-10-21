@@ -40,6 +40,29 @@ def redact(value: Any) -> Any:
     return value
 
 
+_installed = False
+
+
+def install_redaction() -> None:
+    """Redact EVERY log record at creation time (independent of which handlers exist). Safe to call repeatedly."""
+    global _installed
+    if _installed:
+        return
+    previous = logging.getLogRecordFactory()
+
+    def factory(*args, **kwargs):  # noqa: ANN002, ANN003
+        record = previous(*args, **kwargs)
+        try:
+            record.msg = redact_text(record.getMessage())
+            record.args = ()
+        except Exception:  # never break logging
+            pass
+        return record
+
+    logging.setLogRecordFactory(factory)
+    _installed = True
+
+
 class RedactingFilter(logging.Filter):
     """Attach to the root logger so nothing sensitive is written even by accident."""
 

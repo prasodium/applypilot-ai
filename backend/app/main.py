@@ -17,7 +17,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from alembic import command
 from app.config import BACKEND_DIR, Settings, get_settings
-from app.core.redact import RedactingFilter
+from app.core.redact import install_redaction
 from app.db import make_engine, make_sessionmaker
 from app.errors import AppError
 from app.ratelimit import RateLimiter
@@ -54,9 +54,7 @@ DB = Depends(get_db)
 def create_app(settings: Settings | None = None, *, migrate: bool = True) -> FastAPI:
     settings = settings or get_settings()
     logging.getLogger().setLevel(settings.log_level)
-    logging.getLogger().addFilter(RedactingFilter())
-    for h in logging.getLogger().handlers:
-        h.addFilter(RedactingFilter())
+    install_redaction()
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
