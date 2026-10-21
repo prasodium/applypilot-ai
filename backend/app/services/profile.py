@@ -55,6 +55,17 @@ def get_profile(db: Session) -> CandidateProfile:
     return p
 
 
+_REL = ["education", "experience", "skills", "projects"]
+
+
+def fresh_profile(db: Session) -> CandidateProfile:
+    """The profile with its record collections re-read from the DB (records may have been added in this same session)."""
+    p = get_profile(db)
+    db.flush()
+    db.expire(p, _REL)
+    return p
+
+
 def replace_profile(db: Session, data: ProfileFields) -> CandidateProfile:
     p = get_profile(db)
     for k, v in data.model_dump().items():
@@ -151,7 +162,7 @@ def _span(a: str, b: str, current: bool = False) -> str:
 
 def all_facts(db: Session) -> list[Fact]:
     """Flatten the profile into addressable facts with provenance. Personal fields entered by the user are confirmed."""
-    p = get_profile(db)
+    p = fresh_profile(db)
     facts: list[Fact] = []
     for field, label in PERSONAL_LABELS.items():
         v = getattr(p, field)

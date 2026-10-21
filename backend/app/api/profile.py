@@ -29,17 +29,19 @@ router = APIRouter(tags=["profile"])
 
 @router.get("/profile", response_model=ProfileOut)
 def get_profile(db=DB):
-    return svc.get_profile(db)
+    return svc.fresh_profile(db)
 
 
 @router.put("/profile", response_model=ProfileOut)
 def put_profile(body: ProfileFields, db=DB):
-    return svc.replace_profile(db, body)
+    svc.replace_profile(db, body)
+    return svc.fresh_profile(db)
 
 
 @router.patch("/profile", response_model=ProfileOut)
 def patch_profile(body: ProfilePatch, db=DB):
-    return svc.patch_profile(db, body)
+    svc.patch_profile(db, body)
+    return svc.fresh_profile(db)
 
 
 @router.get("/profile/facts", response_model=list[Fact])
