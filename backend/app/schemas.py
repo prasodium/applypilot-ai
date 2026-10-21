@@ -611,3 +611,15 @@ class DashboardOut(BaseModel):
     recent_activity: list[AuditOut]
     next_actions: list[str]
     demo_mode: bool
+
+
+class JobSearchResult(BaseModel):
+    source: str
+    items: list[JobOut]
+    created: int
+    duplicates: int
+    attribution: str = ""
+
+
+class ShortlistIn(BaseModel):
+    status: Literal["shortlisted", "rejected", "new"]
