@@ -273,13 +273,22 @@ SAMPLE = {"data": [
 
 def test_arbeitnow_adapter_maps_fields_and_declares_limits():
     a = ArbeitnowAdapter(transport=httpx.MockTransport(lambda r: httpx.Response(200, json=SAMPLE)))
-    assert a.capabilities.automated_apply is False and a.capabilities.search is True and a.capabilities.last_tested == ""
+    assert a.capabilities.automated_apply is False and a.capabilities.search is True and "live read-only" in a.capabilities.last_tested
     jobs = a.search(SearchQuery(query="python"))
     assert len(jobs) == 1
     f = jobs[0].fields
     assert (f["company"], f["title"], f["location"], f["source_name"]) == ("Beispiel GmbH", "Python Developer", "Berlin", "arbeitnow")
     assert f["source_url"].startswith("https://www.arbeitnow.com/") and f["application_url"] == f["source_url"] and f["posted_at"]
     assert [j.fields["title"] for j in a.search(SearchQuery(remote_only=True))] == ["Chef"]
+
+
+def test_arbeitnow_infers_remote_from_the_location_text():
+    data = {"data": [{"slug": "a", "company_name": "C", "title": "Dev", "description": "<p>x</p>", "remote": False, "url": "https://www.arbeitnow.com/jobs/a",
+                      "tags": [], "job_types": [], "location": "Germany (Remote)", "created_at": 1792576876},
+                     {"slug": "b", "company_name": "C", "title": "Dev2", "description": "<p>x</p>", "remote": False, "url": "https://www.arbeitnow.com/jobs/b",
+                      "tags": [], "job_types": [], "location": "Berlin", "created_at": 1792576876}]}
+    jobs = ArbeitnowAdapter(transport=httpx.MockTransport(lambda r: httpx.Response(200, json=data))).search(SearchQuery())
+    assert [j.fields["work_arrangement"] for j in jobs] == ["remote", "unknown"]
 
 
 def test_arbeitnow_failure_is_reported_safely(client):

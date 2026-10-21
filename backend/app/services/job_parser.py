@@ -71,6 +71,9 @@ def _arrangement(text: str, remote_flag: bool | None = None) -> str:
     return "unknown"
 
 
+detect_arrangement = _arrangement
+
+
 def _employment(text: str) -> str:
     t = text.lower()
     for key, label in (("full-time", "full-time"), ("full time", "full-time"), ("part-time", "part-time"), ("part time", "part-time"),

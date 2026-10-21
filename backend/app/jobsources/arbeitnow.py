@@ -15,7 +15,7 @@ import httpx
 from app.core.skills import find_skills
 from app.core.untrusted import scan_for_injection
 from app.jobsources.base import JobSourceAdapter, RawJob, SearchQuery, SourceCapabilities, SourceError
-from app.services.job_parser import html_to_text, split_sections
+from app.services.job_parser import detect_arrangement, html_to_text, split_sections
 
 API_URL = "https://www.arbeitnow.com/api/job-board-api"
 CACHE_SECONDS = 3600
@@ -27,6 +27,7 @@ class ArbeitnowAdapter(JobSourceAdapter):
     capabilities = SourceCapabilities(
         search=True, fetch_by_url=False, provides_application_url=True, automated_apply=False, requires_auth=False,
         docs_url="https://www.arbeitnow.com/blog/job-board-api",
+        last_tested="2026-10-21 (one live read-only search; fields mapped correctly)",
         notes="Read-only search of public listings; apply on the listing page yourself. Listings are mostly in Germany/Europe. "
               "Terms do not state rate limits or attribution rules: results are cached for an hour and attributed to Arbeitnow.",
     )
@@ -70,7 +71,7 @@ class ArbeitnowAdapter(JobSourceAdapter):
             ts = j.get("created_at")
             out.append(RawJob({
                 "company": company or "Unknown company", "title": title, "location": loc,
-                "work_arrangement": "remote" if j.get("remote") else "unknown",
+                "work_arrangement": "remote" if j.get("remote") else detect_arrangement(loc),
                 "employment_type": ", ".join(map(str, j.get("job_types") or []))[:60], "seniority": "",
                 "description": desc, "required_qualifications": sec["required"], "preferred_qualifications": sec["preferred"],
                 "responsibilities": sec["responsibilities"], "posted_at": datetime.fromtimestamp(int(str(ts)), UTC) if str(ts).isdigit() else None,
