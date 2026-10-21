@@ -143,3 +143,18 @@ def test_migration_creates_schema_matching_models(tmp_path):
     tables = set(inspect(create_engine(url)).get_table_names())
     assert {m.__tablename__ for m in ALL_MODELS} <= tables and "alembic_version" in tables
     _ = select
+
+
+def test_alembic_cli_works_on_a_fresh_checkout_with_no_data_folder(tmp_path):
+    """Regression: the README's `alembic upgrade head` failed with 'unable to open database file' when data/ did not exist."""
+    import os
+    import subprocess
+    import sys
+    from pathlib import Path
+
+    backend = Path(__file__).resolve().parent.parent
+    db = tmp_path / "does" / "not" / "exist" / "applypilot.db"
+    env = {**os.environ, "DATABASE_URL": f"sqlite:///{db}", "PYTHONPATH": str(backend)}
+    r = subprocess.run([sys.executable, "-m", "alembic", "upgrade", "head"], cwd=backend, env=env, capture_output=True, text=True)
+    assert r.returncode == 0, r.stderr[-800:]
+    assert db.exists()

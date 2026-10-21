@@ -25,46 +25,31 @@ FastAPI + SQLAlchemy (SQLite) backend with pure, unit-tested core modules (`stat
 service modules that own transactions, thin API routers, an async Playwright automation package, and a local mock employer site for
 browser tests. A React + TypeScript + Vite + Tailwind frontend talks to the typed API. See `docs/ARCHITECTURE.md`.
 
-## Phases and acceptance criteria
+## Phases and status
 
-### Phase 1 - Foundation and profile
-Scope: repo setup, config, DB + Alembic migration, profile/education/experience/skills/projects CRUD, preferences, fact provenance, export, delete.
-Acceptance: profile round-trips through the API; extracted facts stay unconfirmed until confirmed; export contains all data; delete removes everything; migration applies on a clean DB.
+Legend: **[x] done and tested**, [~] partly done, [ ] not done. "Tested" means an automated test in this repository passes; see the verification record below.
 
-### Phase 2 - Documents
-Scope: PDF/DOCX upload with extension/MIME/size/magic checks, text extraction, heuristic structured parse, parse preview and apply/confirm, master resume, tailored resume and cover-letter drafts with claim provenance, versions, DOCX/PDF download.
-Acceptance: malformed or oversized files are rejected safely; drafts only contain confirmed facts; every generated claim lists its source facts; drafts start unapproved.
+### Phase 1 - Foundation and profile: [x]
+Config, DB + Alembic migrations (0001 schema, 0002 `filled_version`; `alembic check` clean), profile/education/experience/skills/projects CRUD, preferences, fact provenance (extracted data stays unconfirmed), approved-answer library, export, deletion, dashboard and navigation.
 
-### Phase 3 - Jobs and matching
-Scope: `JobSourceAdapter` interface with capability declarations, manual URL/text import (robots-aware fetch, SSRF guard, JSON-LD parsing), mock source, Arbeitnow adapter, duplicate detection, filters, explainable match score, shortlist.
-Acceptance: score has per-component breakdown with unknowns excluded and weights normalized; duplicates are detected; every job has source URL and retrieval time.
+### Phase 2 - Résumé and documents: [x]
+PDF/DOCX upload with extension/MIME/magic/size/encryption/zip-bomb checks, heuristic parser with correction preview, apply/confirm, master and tailored résumés and cover letters with claim provenance, versions, diff, DOCX/PDF/TXT download, approval, deterministic DEMO labelling.
 
-### Phase 4 - Answer engine
-Scope: question classifier, grounded answers from confirmed facts and the approved-answer library, limits, missing-info detection, sensitive/legal handling, prompt-injection defenses, validated structured output.
-Acceptance: sensitive and legal questions never get unattended answers; unknown facts are never filled; numbers not in the facts are rejected; injection text cannot alter settings.
+### Phase 3 - Job discovery and matching: [x]
+Manual URL (robots, SSRF, login-wall refusal) and pasted-text import with JSON-LD parsing, mock source, Arbeitnow adapter (verified live once), duplicate detection, filters, explainable weighted match with unknowns excluded, shortlist, stale-match detection.
 
-### Phase 5 - Browser automation
-Scope: mock employer site (basic, multi-step, validation errors, expired session, human verification, ambiguous and confirmed results), Playwright manager, field detection and semantic mapping, per-action checkpoints, challenge handoff.
-Acceptance: Playwright fills the mock form and reads values back; required-field validation errors are detected; challenges pause the workflow and are never bypassed.
+### Phase 4 - AI answer engine: [x]
+Classifier with sensitive/legal categories first, grounded answers from confirmed facts and the approved library, limits, missing-information detection, review rules, injection defences, validated structured output, provider interface (mock + OpenAI-compatible, the latter only with a mocked transport).
 
-### Phase 6 - Review, authorization, submission
-Scope: central state machine, policy engine, approval bound to application version, idempotent submission, outcome verification, `SUBMISSION_UNCONFIRMED`, audit log, notifications, tracker.
-Acceptance: all safety tests listed in section 18 of the master prompt pass.
+### Phase 5 - Browser automation: [x] (mock employer only)
+Local mock employer (six variants), Playwright manager with origin guard, field detection with semantic mapping, text/select/radio/checkbox/file/textarea handling, read-back verification, validation-error detection, per-action checkpoints, challenge pause.
 
-### Phase 7 - Frontend, hardening, docs
-Scope: React UI for all pages, accessibility and responsive layout, frontend checks, security review, README/USER_GUIDE/INTEGRATIONS/SECURITY, clean-install verification.
-Acceptance: setup commands in the README work from a clean checkout; backend tests, type check, frontend build and browser tests pass.
+### Phase 6 - Review, authorization, submission: [x] (mock employer only)
+Central state machine, backend policy, version-bound approval, compare-and-set idempotent submission, outcome verification, `SUBMISSION_UNCONFIRMED`, user attestation, audit log, in-app notifications, tracker, pause/resume/cancel, crash recovery.
 
-## Risks
-| Risk | Mitigation |
-|---|---|
-| Heuristic resume parsing is imperfect | Always show a parse preview; nothing becomes a verified fact without user confirmation |
-| Real sites change or forbid automation | Capability registry defaults to manual handoff; only the mock site is automated |
-| LLM output may be wrong or injected | Treat as untrusted; validate with Pydantic; grounding checks; sensitive/legal answers need the user |
-| Ambiguous submission results | `SUBMISSION_UNCONFIRMED`, no auto-retry, user-attested resolution only |
-| Python 3.15 is very new | Dependencies pinned loosely and verified; `requires-python >= 3.11` so older versions also work |
+### Phase 7 - Hardening, UI, docs: [~]
+Done: React UI for every specified page, keyboard and axe-core checks, security review with a CSRF/DNS-rebinding fix, documentation, clean-clone verification.
+Not done: PostgreSQL profile and Docker (optional in the spec), dependency vulnerability audit, Kanban view, VoiceOver/manual screen-reader testing, responsive layout checked only by construction (not on a phone), real-site integrations.
 
-## First vertical slice (Step D) task list
-1. Profile create/read/update. 2. Resume upload and parse preview. 3. Manual job import + mock source. 4. Explainable match.
-5. Grounded answer drafts with mock AI. 6. Application preparation and review. 7. Playwright fills the mock employer form.
-8. Workflow checkpoints and tracker.
+## Verification record
+(Filled in from the last clean-clone run: see the end of this file.)

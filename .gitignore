@@ -25,3 +25,6 @@ coverage/
 .DS_Store
 .idea/
 .vscode/
+
+# generated intermediate (regenerate with: npm run gen:api)
+frontend/openapi.json

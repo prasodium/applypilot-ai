@@ -31,6 +31,10 @@ _url = (
     or get_settings().database_url
 )
 config.set_main_option("sqlalchemy.url", _url)
+if _url.startswith("sqlite:///") and ":memory:" not in _url:  # `alembic upgrade head` must work on a fresh checkout (no data/ folder yet)
+    from pathlib import Path
+
+    Path(_url.removeprefix("sqlite:///")).parent.mkdir(parents=True, exist_ok=True)
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
