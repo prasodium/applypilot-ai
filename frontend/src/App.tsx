@@ -9,11 +9,12 @@ import JobDetail from "./pages/JobDetail";
 import Jobs from "./pages/Jobs";
 import Profile from "./pages/Profile";
 import ResumeStudio from "./pages/ResumeStudio";
+import Bot from "./pages/Bot";
 import Settings from "./pages/Settings";
 
 const NAV = [
   ["/", "Dashboard"], ["/profile", "Profile"], ["/resume", "Résumé studio"], ["/jobs", "Jobs"],
-  ["/applications", "Applications"], ["/activity", "Activity"], ["/settings", "Settings"],
+  ["/applications", "Applications"], ["/bot", "Bot"], ["/activity", "Activity"], ["/settings", "Settings"],
 ] as const;
 
 export default function App() {
@@ -52,6 +53,7 @@ export default function App() {
           <Route path="/jobs/:id" element={<JobDetail />} />
           <Route path="/applications" element={<Applications />} />
           <Route path="/applications/:id" element={<ApplicationReview />} />
+          <Route path="/bot" element={<Bot />} />
           <Route path="/activity" element={<Activity />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="*" element={<p>Page not found.</p>} />

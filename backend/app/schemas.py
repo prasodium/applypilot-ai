@@ -650,3 +650,45 @@ class DraftAnswerIn(BaseModel):
     max_length: int | None = Field(default=None, ge=1, le=100_000)
     required: bool = False
     job_id: int | None = None
+
+
+class BotConfigOut(ORM):
+    enabled: bool
+    interval_minutes: int
+    max_new_per_run: int
+    sources: list[str]
+    queries: list[str]
+    last_run_at: datetime | None
+
+
+class BotConfigPatch(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    enabled: bool | None = None
+    interval_minutes: Annotated[int, Field(ge=15, le=10080)] | None = None
+    max_new_per_run: Annotated[int, Field(ge=1, le=20)] | None = None
+    sources: list[Literal["mock", "arbeitnow"]] | None = None
+    queries: Annotated[list[Annotated[str, Field(max_length=100)]], Field(max_length=5)] | None = None
+
+
+class BotRunOut(ORM):
+    id: int
+    trigger: str
+    status: str
+    mode: str
+    started_at: datetime
+    finished_at: datetime | None
+    new_jobs: int
+    prepared: int
+    needs_review: int
+    submitted: int
+    summary: str
+    details: dict[str, Any]
+
+
+class BotStatusOut(BaseModel):
+    config: BotConfigOut
+    running: bool
+    next_run_at: datetime | None
+    submission_mode: str
+    will_submit_without_you: bool  # True only in authorized auto-submit mode
+    runs: list[BotRunOut]

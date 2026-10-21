@@ -105,6 +105,9 @@ export const api = {
   cancelWorkflow: (id: number) => request<S["WorkflowOut"]>("POST", `/workflows/${id}/cancel`),
   // activity
   audit: (event_type?: string) => request<S["AuditOut"][]>("GET", `/audit${q({ event_type, limit: 100 })}`),
+  bot: () => request<S["BotStatusOut"]>("GET", "/bot"),
+  patchBot: (body: S["BotConfigPatch"]) => request<S["BotStatusOut"]>("PATCH", "/bot", body),
+  runBot: () => request<S["BotStatusOut"]>("POST", "/bot/run"),
   notifications: () => request<S["NotificationOut"][]>("GET", "/notifications"),
   markNotification: (id: number, read: boolean) => request<S["NotificationOut"]>("PATCH", `/notifications/${id}`, { read }),
 };

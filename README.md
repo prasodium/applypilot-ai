@@ -19,6 +19,7 @@ happened, **without ever claiming a submission it could not verify**.
 | Answers | Form questions are classified and answered from confirmed facts, with confidence and sources. | Sensitive questions (work authorization, sponsorship, demographics, health, criminal history) are never inferred; legal declarations are never pre-filled. |
 | Browser | Playwright fills the form, **reads every value back**, checkpoints each step and stops at the final step. | CAPTCHA, login, MFA and email verification **pause the workflow for you**; nothing is bypassed. Traffic is limited to the allowed site. |
 | Review | You see every answer, its sources, confidence and warnings, plus the documents. | Approval is bound to the **exact version**; any later edit revokes it. |
+| Bot | An optional scheduled bot (off by default) searches, scores, prepares drafts and fills forms, then stops for you. | It uses the same services and policy as manual actions and **never submits** unless you chose *Authorized auto-submit* and every check passes. |
 | Submit | Backend policy engine checks mode, approval, completeness, limits, duplicates, site support. | Default mode is *Review before submission*. Ambiguous results become `SUBMISSION_UNCONFIRMED` and are **never retried automatically**. |
 
 ## Requirements
@@ -136,6 +137,7 @@ Implemented and covered by automated tests:
 * Question classification and grounded answer engine; sensitive/legal handling; limits; prompt-injection defences; provider-independent AI interface with a deterministic mock and an OpenAI-compatible client.
 * Central state machine, backend submission policy, version-bound approval, idempotent submission, `SUBMISSION_UNCONFIRMED`, user-attested resolution, audit log, notifications, pause/resume/cancel, crash recovery.
 * Playwright automation against the local mock employer (basic, validation, multi-step, expired session, human verification, ambiguous and confirmed results).
+* Scheduled background bot (off by default; in-process scheduler, runs while the app is open): discover, score, prepare, fill, then stop for review; auto-submit only in the user's explicit mode and through the same policy. Verified against the mock source and mock employer only.
 * React UI for every page in the specification, keyboard accessible; axe-core finds no serious or critical issues on the pages scanned.
 
 **Not implemented, and not claimed:**

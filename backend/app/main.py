@@ -1,6 +1,7 @@
 """FastAPI application factory."""
 from __future__ import annotations
 
+import asyncio
 import logging
 from collections.abc import Iterator
 from contextlib import asynccontextmanager
@@ -66,7 +67,12 @@ def create_app(settings: Settings | None = None, *, migrate: bool = True) -> Fas
         with app.state.sessionmaker() as s:
             recover_interrupted(s)  # runs left mid-flight by a crash become resumable (or UNCONFIRMED for submits)
             s.commit()
+        if settings.bot_scheduler_enabled:
+            app.state.bot_scheduler.start()
         yield
+        await app.state.bot_scheduler.shutdown()
+        for t in list(app.state.bot_tasks):
+            t.cancel()
         await app.state.runner.shutdown()
         app.state.engine.dispose()
 
@@ -78,10 +84,14 @@ def create_app(settings: Settings | None = None, *, migrate: bool = True) -> Fas
     app.state.limiter = RateLimiter()
 
     from app.ai.provider import build_provider
+    from app.services.bot import BotScheduler
     from app.services.workflow import WorkflowRunner
 
     app.state.ai = build_provider(settings)
     app.state.runner = WorkflowRunner(app)
+    app.state.bot_lock = asyncio.Lock()
+    app.state.bot_tasks = set()
+    app.state.bot_scheduler = BotScheduler(app)
 
     app.add_middleware(
         CORSMiddleware, allow_origins=[settings.frontend_origin], allow_credentials=False,
@@ -144,9 +154,9 @@ def create_app(settings: Settings | None = None, *, migrate: bool = True) -> Fas
         return JSONResponse({"error": {"code": "internal_error", "message": "Something went wrong. Check the server log.", "details": {}}},
                             status_code=500)
 
-    from app.api import answers, applications, documents, jobs, meta, profile, workflows
+    from app.api import answers, applications, bot, documents, jobs, meta, profile, workflows
 
-    for r in (meta.router, answers.router, profile.router, documents.router, jobs.router, applications.router, workflows.router):
+    for r in (meta.router, answers.router, bot.router, profile.router, documents.router, jobs.router, applications.router, workflows.router):
         app.include_router(r, prefix="/api")
 
     if settings.mount_mock_employer and not settings.is_production:

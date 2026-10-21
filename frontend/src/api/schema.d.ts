@@ -222,6 +222,64 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/bot": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Bot */
+        get: operations["get_bot_api_bot_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Patch Bot
+         * @description Only the user can change bot settings (this call is origin-guarded); job text and web pages can never reach it.
+         */
+        patch: operations["patch_bot_api_bot_patch"];
+        trace?: never;
+    };
+    "/api/bot/run": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Run Now
+         * @description Starts a run in the background and returns immediately; poll GET /api/bot.
+         */
+        post: operations["run_now_api_bot_run_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/bot/runs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Runs */
+        get: operations["runs_api_bot_runs_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/dashboard": {
         parameters: {
             query?: never;
@@ -1346,6 +1404,80 @@ export interface components {
         Body_upload_api_documents_post: {
             /** File */
             file: string;
+        };
+        /** BotConfigOut */
+        BotConfigOut: {
+            /** Enabled */
+            enabled: boolean;
+            /** Interval Minutes */
+            interval_minutes: number;
+            /** Last Run At */
+            last_run_at: string | null;
+            /** Max New Per Run */
+            max_new_per_run: number;
+            /** Queries */
+            queries: string[];
+            /** Sources */
+            sources: string[];
+        };
+        /** BotConfigPatch */
+        BotConfigPatch: {
+            /** Enabled */
+            enabled?: boolean | null;
+            /** Interval Minutes */
+            interval_minutes?: number | null;
+            /** Max New Per Run */
+            max_new_per_run?: number | null;
+            /** Queries */
+            queries?: string[] | null;
+            /** Sources */
+            sources?: ("mock" | "arbeitnow")[] | null;
+        };
+        /** BotRunOut */
+        BotRunOut: {
+            /** Details */
+            details: {
+                [key: string]: unknown;
+            };
+            /** Finished At */
+            finished_at: string | null;
+            /** Id */
+            id: number;
+            /** Mode */
+            mode: string;
+            /** Needs Review */
+            needs_review: number;
+            /** New Jobs */
+            new_jobs: number;
+            /** Prepared */
+            prepared: number;
+            /**
+             * Started At
+             * Format: date-time
+             */
+            started_at: string;
+            /** Status */
+            status: string;
+            /** Submitted */
+            submitted: number;
+            /** Summary */
+            summary: string;
+            /** Trigger */
+            trigger: string;
+        };
+        /** BotStatusOut */
+        BotStatusOut: {
+            config: components["schemas"]["BotConfigOut"];
+            /** Next Run At */
+            next_run_at: string | null;
+            /** Running */
+            running: boolean;
+            /** Runs */
+            runs: components["schemas"]["BotRunOut"][];
+            /** Submission Mode */
+            submission_mode: string;
+            /** Will Submit Without You */
+            will_submit_without_you: boolean;
         };
         /**
          * Confidence
@@ -3159,6 +3291,110 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AuditOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_bot_api_bot_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BotStatusOut"];
+                };
+            };
+        };
+    };
+    patch_bot_api_bot_patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BotConfigPatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BotStatusOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    run_now_api_bot_run_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BotStatusOut"];
+                };
+            };
+        };
+    };
+    runs_api_bot_runs_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BotRunOut"][];
                 };
             };
             /** @description Validation Error */

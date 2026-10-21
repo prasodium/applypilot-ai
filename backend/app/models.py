@@ -371,9 +371,38 @@ class Notification(Base):
     read: Mapped[bool] = mapped_column(Boolean, default=False)
 
 
+class BotConfig(Timestamped, Base):
+    """Settings of the scheduled background bot (single row). Off by default; changed only by the user."""
+
+    __tablename__ = "bot_config"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    enabled: Mapped[bool] = mapped_column(Boolean, default=False)
+    interval_minutes: Mapped[int] = mapped_column(Integer, default=1440)
+    max_new_per_run: Mapped[int] = mapped_column(Integer, default=5)
+    sources: Mapped[list[str]] = mapped_column(JSON, default=lambda: ["mock"])
+    queries: Mapped[list[str]] = mapped_column(JSON, default=list)  # empty -> use target roles from preferences
+    last_run_at: Mapped[datetime | None] = mapped_column(UTCDateTime, nullable=True)
+
+
+class BotRun(Base):
+    __tablename__ = "bot_runs"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    trigger: Mapped[str] = mapped_column(String(10), default="manual")  # manual | schedule
+    status: Mapped[str] = mapped_column(String(12), default="running")  # running | completed | failed
+    mode: Mapped[str] = mapped_column(String(40), default="")
+    started_at: Mapped[datetime] = mapped_column(UTCDateTime, default=utcnow)
+    finished_at: Mapped[datetime | None] = mapped_column(UTCDateTime, nullable=True)
+    new_jobs: Mapped[int] = mapped_column(Integer, default=0)
+    prepared: Mapped[int] = mapped_column(Integer, default=0)
+    needs_review: Mapped[int] = mapped_column(Integer, default=0)
+    submitted: Mapped[int] = mapped_column(Integer, default=0)
+    summary: Mapped[str] = mapped_column(String(500), default="")
+    details: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)  # skip counts, safe error messages, application ids
+
+
 ALL_MODELS = [
     CandidateProfile, EducationRecord, WorkExperience, Skill, CandidateProject, ApprovedAnswer, UserPreferences,
     CandidateDocument, JobListing, JobMatch, JobSourceIntegration, PlatformAccount, Application, ApplicationQuestion,
-    ApplicationAnswer, WorkflowRun, WorkflowEvent, AuditLog, Notification,
+    ApplicationAnswer, WorkflowRun, WorkflowEvent, AuditLog, Notification, BotConfig, BotRun,
 ]
 _ = (AppState, Confidence, DocumentKind, ReviewStatus, SubmissionMode, WorkflowStatus)  # re-exported for convenience

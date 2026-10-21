@@ -35,6 +35,9 @@ class Settings(BaseSettings):
     # Where the local mock employer site is reachable. Only this origin has form filling/submission enabled.
     mock_employer_base_url: str = "http://127.0.0.1:8000/mock-employer"
     mount_mock_employer: bool = True  # development convenience; never mounted when app_env=production
+    # Background bot scheduler: checks every `bot_tick_seconds` whether a run is due. It does nothing unless the user enabled the bot.
+    bot_scheduler_enabled: bool = True
+    bot_tick_seconds: float = 30.0
     # Serve the built frontend (frontend/dist) from the backend so one command runs everything. Ignored if the folder does not exist.
     serve_frontend: bool = True
     frontend_dist: Path = BACKEND_DIR.parent / "frontend" / "dist"

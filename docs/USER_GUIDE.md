@@ -32,7 +32,16 @@ On the application page:
 3. **Submit** (enabled only when the policy allows). If the page shows an explicit confirmation reference, the application becomes *Submitted* with that reference. If it is unclear it becomes **Result unconfirmed** and is **never retried automatically**; check the employer's site or your email and record what you found (stored as *reported by you*).
 If a site shows a human-verification challenge, asks you to sign in, or needs email verification, the workflow pauses and tells you what to do. ApplyPilot never solves or bypasses these.
 
-## 6. Settings
+## 6. Let the bot do the routine work (optional)
+Open **Bot**, tick *Run the bot automatically*, and pick how often it runs. Each run:
+1. searches your enabled sources using your target roles (or the search terms you set),
+2. scores new jobs and keeps those at or above your match threshold, skipping closed, rejected, duplicate and suspicious listings,
+3. prepares applications and fills the form, up to *Max new applications per run* and your daily limit,
+4. **stops for you**: open *Applications* to review, approve and submit. A notification summarises each run.
+
+The bot is **off by default**, runs only while ApplyPilot is open, and **never submits** unless *Authorized auto-submit* is on in Settings and every safety check passes (approved documents, reviewed answers, verified form, limits). It never answers sensitive or legal questions and never gets past CAPTCHA, login or verification. *Run now* triggers one run on demand.
+
+## 7. Settings
 * **Submission mode**: *Review before submission* (default), *Prepare only*, *Research only*, or *Authorized auto-submit* (off by default; requires every safety condition).
 * Match threshold, daily limit, target roles and locations, salary/relocation/start-date preferences (used only if filled), evidence capture, job sources, saved answers.
 * **Your data**: export everything as JSON, or delete everything.

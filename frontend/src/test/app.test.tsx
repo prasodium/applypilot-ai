@@ -136,3 +136,29 @@ describe("Application review", () => {
     expect(screen.getByRole("link", { name: "Open the application page" })).toHaveAttribute("rel", "noopener noreferrer");
   });
 });
+
+describe("Bot page", () => {
+  const status = (enabled: boolean, auto = false) => ({
+    config: { id: 1, enabled, interval_minutes: 1440, max_new_per_run: 5, sources: ["mock"], queries: [], last_run_at: null },
+    running: false, next_run_at: enabled ? "2030-01-01T00:00:00Z" : null, submission_mode: auto ? "authorized_auto_submit" : "review_before_submission",
+    will_submit_without_you: auto, runs: [],
+  });
+
+  it("is off by default, says it never submits, and turning it on sends only that change", async () => {
+    const calls = mockApi([["GET", "/bot", () => status(false)], ["PATCH", "/bot", () => status(true)]]);
+    const Bot = (await import("../pages/Bot")).default;
+    renderAt(<Bot />);
+    expect(await screen.findByText(/never submits/i)).toBeInTheDocument();
+    expect(screen.getByText(/Nothing runs until you turn it on/i)).toBeInTheDocument();
+    await userEvent.click(screen.getByRole("checkbox", { name: /Run the bot automatically/i }));
+    await waitFor(() => expect(calls.some((c) => c.method === "PATCH")).toBe(true));
+    expect(calls.find((c) => c.method === "PATCH")?.body).toEqual({ enabled: true });
+  });
+
+  it("warns clearly when auto-submit is on", async () => {
+    mockApi([["GET", "/bot", () => status(true, true)]]);
+    const Bot = (await import("../pages/Bot")).default;
+    renderAt(<Bot />);
+    expect(await screen.findByText(/Auto-submit is on/i)).toBeInTheDocument();
+  });
+});

@@ -127,7 +127,7 @@ def test_full_journey_through_the_ui_and_accessibility(ui):
     page.get_by_role("link", name="Applications", exact=True).click()
     expect(page.get_by_role("row").filter(has_text="Globex (demo)").get_by_text("Submitted")).to_be_visible()
     assert axe_violations(page) == [], "tracker accessibility"
-    for name, heading in (("Settings", "Settings"), ("Activity", "Activity"), ("Profile", "Candidate profile"), ("Résumé studio", "Résumé studio")):
+    for name, heading in (("Settings", "Settings"), ("Bot", "Bot"), ("Activity", "Activity"), ("Profile", "Candidate profile"), ("Résumé studio", "Résumé studio")):
         page.get_by_role("link", name=name, exact=True).click()
         expect(page.get_by_role("heading", name=heading, exact=True)).to_be_visible()
         assert axe_violations(page) == [], f"{name} accessibility"

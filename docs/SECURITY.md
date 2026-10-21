@@ -34,6 +34,7 @@ accidental or ambiguous submissions; and sloppy data handling.
 | **CSRF**: state-changing requests from a browser must come from this app's own origin (or the configured frontend origin) | `cross_origin_guard` middleware in `main.py` | `test_cross_site_state_changing_requests_are_blocked`, `test_blocked_cross_site_request_has_no_effect` |
 | **DNS rebinding**: only `127.0.0.1`/`localhost` Host headers are served | `TrustedHostMiddleware` (`allowed_hosts`) | `test_unknown_host_headers_are_rejected` |
 | CORS limited to the frontend origin; security headers; rate limits on sensitive endpoints | `main.py`, `ratelimit.py` | `test_security_headers_and_cors`, `test_sensitive_endpoints_are_rate_limited` |
+| The scheduled bot is off by default, cannot change settings, never approves, and submits only in the user's auto-submit mode through the same policy; suspicious job text is skipped; one run at a time | `services/bot.py`, `api/bot.py` | `test_bot.py` (off by default, limits, research-only, suspicious skip, policy-blocked auto-submit, origin guard) |
 | Export and deletion of all data | `profile.export_all/delete_all` | `test_export_contains_everything_then_delete_removes_everything` |
 | Evidence is minimal; screenshots/HTML are never stored | `workflow._evidence`, `evidence_capture` setting | `test_evidence_capture_can_be_turned_off` |
 | SQL injection | SQLAlchemy ORM / bound parameters only | n/a (no string-built SQL) |
@@ -51,6 +52,7 @@ accidental or ambiguous submissions; and sloppy data handling.
 
 ## Known limitations
 * No authentication; local-only by design (see Model). Browser-driven cross-site requests are blocked by the origin guard, but a *non-browser* process on your machine (or anything that can reach the port) is not stopped: keep the port bound to localhost.
+* The bot scheduler lives inside the server process, so it runs only while ApplyPilot is open and a missed schedule runs once on the next start. It is not a system service.
 * Rate limits and the in-memory run registry are per process.
 * The ambiguous-result detection relies on page text; a site that shows a success phrase and a reference without really accepting the form would be treated as confirmed.
 * The résumé parser and the job parser are heuristics, so wrong extractions are possible. That is why a human confirmation step exists.

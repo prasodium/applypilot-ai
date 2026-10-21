@@ -60,10 +60,10 @@ The project was cloned fresh from Git and set up by following the README command
 |---|---|
 | `alembic upgrade head` on a fresh checkout | passes (**the first clean-clone attempt failed here** because `data/` did not exist; fixed in `alembic/env.py` and covered by a regression test) |
 | Live server from `run-local.sh` | `/api/health` ok, UI served, mock employer served, API docs served, mock search created 8 jobs |
-| `ruff check app tests` / `mypy app` | clean (54 source files) |
-| Backend `pytest` (unit, integration, real-browser, UI end-to-end) | **214 passed** in ~61 s |
-| Frontend `eslint`, `tsc`, `vitest`, `vite build` | clean, **13 passed**, build ok (101 kB gzipped JS) |
-| axe-core (WCAG 2.0 A/AA) on dashboard, jobs, job detail, application review, tracker, settings, activity, profile, résumé studio | no critical or serious violations |
+| `ruff check app tests` / `mypy app` | clean (56 source files) |
+| Backend `pytest` (unit, integration, real-browser, UI end-to-end) | **224 passed** in ~86 s |
+| Frontend `eslint`, `tsc`, `vitest`, `vite build` | clean, **15 passed**, build ok (101 kB gzipped JS) |
+| axe-core (WCAG 2.0 A/AA) on dashboard, jobs, job detail, application review, tracker, settings, bot, activity, profile, résumé studio | no critical or serious violations |
 | Secret scan of tracked files | only intentionally fake strings in tests; no `.env`, database or uploads tracked |
 
 Bugs found by this verification work and fixed along the way (each has a regression test): stale relationship caches producing an incomplete master résumé; mock AI answering unrelated questions from job skills; yes/no skill questions classified as essays; auto-submit state not flushed before the compare-and-set; pause/cancel ignored while waiting for input; an unused state-machine edge that could skip approval; log redaction only covering existing handlers; **cross-site POSTs could reach no-body endpoints such as submit (CSRF guard and Host check added)**; the mock employer ignoring its mount prefix; Arbeitnow remote listings reported as "unknown".

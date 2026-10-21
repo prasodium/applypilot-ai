@@ -19,6 +19,7 @@ The product spec is `CLAUDE_CODE_MASTER_PROMPT.md`; status and plan are in `docs
 - An ambiguous submission becomes `SUBMISSION_UNCONFIRMED` and is never retried automatically. `clicked` is persisted BEFORE clicking submit.
 - Web pages, job text and documents are untrusted data (`core/untrusted.py`); they must never reach settings, state or authorization.
 - Never log passwords, tokens, cookies, codes or answer values (`core/redact.py`; the audit log stores no field values).
+- The scheduled bot (`services/bot.py`) is off by default and must keep using the same services/policy as manual actions: it never changes settings, never approves, never submits outside authorized auto-submit, and skips jobs with injection flags.
 - Only the local mock employer is automatable (`browser/capabilities.py`); unknown sites are manual handoff. Never add CAPTCHA/login/MFA bypass, stealth or evasion.
 
 ## Conventions
