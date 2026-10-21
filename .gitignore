@@ -1,0 +1,27 @@
+# secrets and local state
+.env
+.env.*
+!.env.example
+data/
+*.db
+*.sqlite
+*.sqlite3
+uploads/
+browser-profiles/
+playwright-artifacts/
+# python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+# node
+node_modules/
+dist/
+coverage/
+# os / editor
+.DS_Store
+.idea/
+.vscode/
