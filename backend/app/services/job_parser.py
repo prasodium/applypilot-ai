@@ -125,7 +125,11 @@ def _jsonld_job(html: str) -> dict[str, Any] | None:
             continue
         items = data if isinstance(data, list) else data.get("@graph", [data]) if isinstance(data, dict) else []
         for it in items:
-            if isinstance(it, dict) and "JobPosting" in (it.get("@type") if isinstance(it.get("@type"), list) else [it.get("@type")]):
+            if not isinstance(it, dict):
+                continue
+            types = it.get("@type")
+            types = types if isinstance(types, list) else [types]
+            if "JobPosting" in types:
                 return it
     return None
 
@@ -173,9 +177,11 @@ def parse_job(*, html: str = "", text: str = "", url: str = "", source: str = "m
         m = re.search(r"^(.*?)\s+(?:at|@|-|–|\|)\s+(.+)$", title)
         if m and not company:
             title, company = m.group(1).strip(), re.split(r"\s*[|–-]\s*", m.group(2))[0].strip()
-        for sel in (("meta", {"property": "og:site_name"}), ("meta", {"name": "author"})):
-            if not company and (tag := soup.find(*sel)) and tag.get("content"):
-                company = tag["content"].strip()
+        for attrs in ({"property": "og:site_name"}, {"name": "author"}):
+            tag = soup.find("meta", attrs=dict(attrs))  # type: ignore[arg-type]  # bs4 stubs reject plain dict literals
+            content = tag.get("content") if tag else None
+            if not company and isinstance(content, str) and content.strip():
+                company = content.strip()
     if not title and description:
         first = next((ln.strip() for ln in description.split("\n") if ln.strip()), "")
         title = first[:200]

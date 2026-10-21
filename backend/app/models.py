@@ -256,6 +256,7 @@ class Application(Timestamped, Base):
     state: Mapped[str] = mapped_column(String(40), default=AppState.APPLICATION_PREPARING.value, index=True)
     version: Mapped[int] = mapped_column(Integer, default=1)  # bumped by any change to answers/documents
     approved_version: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    filled_version: Mapped[int | None] = mapped_column(Integer, nullable=True)  # version whose form fill was verified in the browser
     approved_at: Mapped[datetime | None] = mapped_column(UTCDateTime, nullable=True)
     idempotency_key: Mapped[str] = mapped_column(String(64), unique=True)
     resume_document_id: Mapped[int | None] = mapped_column(ForeignKey("candidate_documents.id", ondelete="SET NULL"), nullable=True)

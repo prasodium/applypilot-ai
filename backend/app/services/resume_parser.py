@@ -215,6 +215,7 @@ def _parse_education(lines: list[str], warnings: list[str]) -> list[EducationIn]
         text_so_far = " ".join(cur["lines"]) if cur else ""
         if cur is None or (has_inst and _INSTITUTION.search(text_so_far)) or (has_deg and _DEGREE.search(text_so_far)) or cur["bullets"]:
             new()
+        assert cur is not None
         cur["lines"].append(line.strip())
     out: list[EducationIn] = []
     for e in entries:

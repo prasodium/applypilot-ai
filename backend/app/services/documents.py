@@ -54,7 +54,7 @@ def _extract_pdf(data: bytes) -> str:
             raise Unprocessable("The PDF is password-protected. Remove the password and upload it again.", code="encrypted_pdf")
         if doc.page_count > MAX_PDF_PAGES:
             raise Unprocessable(f"The PDF has more than {MAX_PDF_PAGES} pages; a résumé should be shorter.", code="too_many_pages")
-        return "\n".join(page.get_text() for page in doc)
+        return "\n".join(doc.load_page(i).get_text() for i in range(doc.page_count))
     finally:
         doc.close()
 

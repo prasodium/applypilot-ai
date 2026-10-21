@@ -73,7 +73,7 @@ class ArbeitnowAdapter(JobSourceAdapter):
                 "work_arrangement": "remote" if j.get("remote") else "unknown",
                 "employment_type": ", ".join(map(str, j.get("job_types") or []))[:60], "seniority": "",
                 "description": desc, "required_qualifications": sec["required"], "preferred_qualifications": sec["preferred"],
-                "responsibilities": sec["responsibilities"], "posted_at": datetime.fromtimestamp(int(ts), UTC) if str(ts).isdigit() else None,
+                "responsibilities": sec["responsibilities"], "posted_at": datetime.fromtimestamp(int(str(ts)), UTC) if str(ts).isdigit() else None,
                 "source_name": "arbeitnow", "source_url": str(j["url"]), "application_url": str(j["url"]), "status": "open",
                 "external_id": str(j.get("slug", ""))[:200], "flags": sorted({f"possible_prompt_injection: {h}" for h in scan_for_injection(desc)}),
                 "is_demo": False, "_skills_required": find_skills("\n".join(sec["required"])),

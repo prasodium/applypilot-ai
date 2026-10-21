@@ -468,6 +468,7 @@ class ApplicationOut(ORM):
     application_url: str
     confirmation_reference: str
     outcome: str
+    outcome_evidence: dict[str, Any] = {}
     submitted_at: datetime | None
     notes: str
     last_error: str

@@ -4,9 +4,9 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 
+from app.core.skills import find_skills
 from app.jobsources.base import JobSourceAdapter, RawJob, SearchQuery, SourceCapabilities
 from app.services.job_parser import split_sections
-from app.core.skills import find_skills
 
 _NOW = datetime(2026, 10, 1, tzinfo=UTC)
 
@@ -84,8 +84,9 @@ class MockJobSource(JobSourceAdapter):
             _job(3, "Umbrella (demo)", "Frontend Engineer", "Berlin, Germany", "onsite", _DESC_FRONTEND, "/jobs/basic/apply"),
             _job(4, "Hooli (demo)", "Junior Python Developer", "Remote", "remote", _DESC_INJECTION, "/jobs/basic/apply", seniority="junior"),
             _job(5, "Stark (demo)", "Backend Engineer", "Springfield, USA", "hybrid", _DESC_BACKEND, "/jobs/ambiguous/apply"),
-            _job(6, "Wayne (demo)", "Data Engineer", "Gotham, USA", "onsite", "Requirements:\n- SQL\n- Python\n- Spark\n", "/jobs/human-verification/apply", status="closed"),
+            _job(6, "Wayne (demo)", "Data Engineer", "Gotham, USA", "onsite", "Requirements:\n- SQL\n- Python\n- Spark\n", "/jobs/human-verification/apply"),
             _job(7, "Soylent (demo)", "QA Automation Engineer", "Remote", "remote", "Requirements:\n- Playwright or Selenium\n- Python\n- pytest\n", "/jobs/expired-session/apply"),
+            _job(8, "Closed Corp (demo)", "Archivist", "Springfield, USA", "onsite", "Requirements:\n- Patience\n", "/jobs/basic/apply", status="closed"),
         ]
         out = []
         for j in jobs:

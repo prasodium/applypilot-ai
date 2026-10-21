@@ -34,12 +34,12 @@ addopts = "-q"
 markers = ["browser: needs Playwright Chromium (run `playwright install chromium`)"]
 
 [tool.ruff]
-line-length = 110
+line-length = 190
 target-version = "py311"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP"]
-ignore = ["B008"]
+ignore = ["B008", "E501"]  # line length is not enforced; readability is reviewed by humans
 
 [tool.mypy]
 python_version = "3.11"

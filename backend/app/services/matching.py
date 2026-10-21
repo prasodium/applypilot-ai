@@ -121,6 +121,7 @@ def _degree_level(text: str) -> float:
 
 def _skill_component(key: str, req: list[str], cand: CandidateView, evidence: set[str], note: str = "") -> Component:
     c = Component(key, LABELS[key], None)
+    c.matched, c.gaps = [], []
     if not req:
         c.explanation = "The posting does not list recognisable skills here, so this is not scored."
         return c
@@ -196,7 +197,9 @@ def compute_match(job: JobView, cand: CandidateView, weights: dict[str, float] |
     c = Component("responsibilities", LABELS["responsibilities"], None)
     if job.responsibilities:
         mine = _stems(cand.responsibilities_text)
-        ratios, matched, gaps = [], [], []
+        ratios: list[float] = []
+        matched: list[str] = []
+        gaps: list[str] = []
         for line in job.responsibilities:
             toks = _stems(line)
             if not toks:
@@ -224,7 +227,7 @@ def compute_match(job: JobView, cand: CandidateView, weights: dict[str, float] |
         c.score, c.explanation, c.matched = 100.0, "Remote role; matches your preference.", ["remote"]
     elif cand.remote_preference == "remote" and arr in {"onsite", "hybrid"}:
         c.score, c.explanation, c.gaps = 0.0, "You prefer remote work but this role is not remote.", [arr]
-    elif any(l.lower() in loc or loc and loc.split(",")[0].strip() in l.lower() for l in cand.locations):
+    elif any(pref.lower() in loc or loc and loc.split(",")[0].strip() in pref.lower() for pref in cand.locations):
         c.score, c.explanation, c.matched = 100.0, "The location matches one of your preferred locations.", [job.location]
     elif cand.locations:
         c.score, c.explanation, c.gaps = 30.0, "The location is not in your preferred locations.", [job.location or "unknown location"]

@@ -6,7 +6,6 @@ from collections.abc import Iterator
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from alembic import command
 from alembic.config import Config as AlembicConfig
 from fastapi import Depends, FastAPI, Request
 from fastapi.exceptions import RequestValidationError
@@ -16,6 +15,7 @@ from pydantic import ValidationError as PydanticValidationError
 from sqlalchemy.orm import Session
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+from alembic import command
 from app.config import BACKEND_DIR, Settings, get_settings
 from app.core.redact import RedactingFilter
 from app.db import make_engine, make_sessionmaker

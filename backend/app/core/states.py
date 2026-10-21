@@ -38,6 +38,9 @@ TRANSITIONS: dict[S, set[S]] = {
     S.SUBMISSION_IN_PROGRESS: {
         S.SUBMITTED, S.SUBMISSION_UNCONFIRMED, S.FORM_VALIDATION_FAILED, S.HUMAN_VERIFICATION_REQUIRED,
         S.LOGIN_REQUIRED, S.APPLICATION_FAILED,
+        # Before the submit control is clicked nothing has been sent, so these are safe exits:
+        S.PROFILE_INFORMATION_REQUIRED, S.SUBMISSION_PENDING_APPROVAL, S.READY_FOR_REVIEW,
+        S.EMAIL_VERIFICATION_REQUIRED, S.ACCOUNT_CREATION_REQUIRED,
     },
     S.SUBMITTED: {S.APPLICATION_WITHDRAWN},
     # No automatic path out of UNCONFIRMED: only a user-attested resolution (SUBMITTED / FAILED) or withdrawal.

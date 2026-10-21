@@ -292,7 +292,7 @@ def delete_all(db: Session, upload_dir: Any = None) -> dict[str, int]:
     """Right to deletion: removes every row and every stored upload. Only an anonymous marker remains."""
     counts: dict[str, int] = {}
     for m in reversed(ALL_MODELS):
-        counts[m.__tablename__] = db.execute(delete(m)).rowcount or 0
+        counts[m.__tablename__] = getattr(db.execute(delete(m)), "rowcount", 0) or 0
     shutil.rmtree(upload_dir or get_settings().upload_dir, ignore_errors=True)
     db.flush()
     audit.record(db, "data_deleted", "All user data deleted at the user's request")

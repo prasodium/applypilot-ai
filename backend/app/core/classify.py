@@ -3,7 +3,8 @@ from __future__ import annotations
 
 import re
 
-from app.core.enums import LEGAL_TYPES, SENSITIVE_TYPES, QuestionType as Q
+from app.core.enums import LEGAL_TYPES, SENSITIVE_TYPES
+from app.core.enums import QuestionType as Q
 from app.core.skills import find_skills
 
 _R = re.compile

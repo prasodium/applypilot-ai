@@ -209,11 +209,11 @@ def test_mock_search_creates_flagged_demo_jobs_and_dedupes(client):
     r = client.post("/api/jobs/search", json={"source": "mock"})
     assert r.status_code == 200, r.text
     body = r.json()
-    assert body["created"] == 7 and all(j["is_demo"] and j["source_name"] == "mock" for j in body["items"])
+    assert body["created"] == 8 and all(j["is_demo"] and j["source_name"] == "mock" for j in body["items"])
     assert "Synthetic" in body["attribution"]
     again = client.post("/api/jobs/search", json={"source": "mock"}).json()
-    assert again["created"] == 0 and again["duplicates"] == 7
-    assert client.get("/api/jobs").json()["total"] == 7
+    assert again["created"] == 0 and again["duplicates"] == 8
+    assert client.get("/api/jobs").json()["total"] == 8
     inj = next(j for j in body["items"] if "Junior Python" in j["title"])
     assert any("prompt_injection" in f for f in inj["flags"])
     assert client.get("/api/preferences").json()["submission_mode"] == "review_before_submission"
@@ -225,7 +225,7 @@ def test_filters_sorting_pagination_and_shortlist(client, profile):
     assert client.get("/api/jobs?q=frontend").json()["total"] == 1
     assert client.get("/api/jobs?status=closed").json()["total"] == 1
     page = client.get("/api/jobs?page_size=3&page=2&sort=score").json()
-    assert len(page["items"]) == 3 and page["total"] == 7
+    assert len(page["items"]) == 3 and page["total"] == 8
     jid = client.get("/api/jobs").json()["items"][0]["id"]
     assert client.post(f"/api/jobs/{jid}/shortlist", json={"status": "shortlisted"}).json()["user_status"] == "shortlisted"
     assert client.get("/api/jobs?user_status=shortlisted").json()["total"] == 1

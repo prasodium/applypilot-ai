@@ -41,7 +41,7 @@ def assert_url_allowed(url: str, allow_origins: set[str]) -> tuple[str, str]:
         infos = socket.getaddrinfo(p.hostname, p.port or (443 if p.scheme == "https" else 80), proto=socket.IPPROTO_TCP)
     except socket.gaierror as exc:
         raise Unprocessable("The address could not be resolved.", code="unresolvable") from exc
-    if not infos or any(_is_blocked_ip(i[4][0]) for i in infos):
+    if not infos or any(_is_blocked_ip(str(i[4][0])) for i in infos):
         raise Forbidden("That address points to a private or local network and cannot be fetched.", code="blocked_address")
     return origin, p.hostname
 

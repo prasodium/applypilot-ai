@@ -17,7 +17,8 @@ from sqlalchemy.orm import Session
 from app.ai.provider import LLMProvider, ProviderError
 from app.ai.schemas import FreeTextAnswerOut
 from app.core.classify import classify, extract_limits, is_legal, is_sensitive
-from app.core.enums import Confidence, QuestionType as Q, ReviewStatus
+from app.core.enums import Confidence, ReviewStatus
+from app.core.enums import QuestionType as Q
 from app.core.grounding import invalid_fact_ids, unsupported_numbers
 from app.core.skills import find_skills
 from app.core.untrusted import scan_for_injection

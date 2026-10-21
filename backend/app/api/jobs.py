@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, Query, Request
 from app.errors import NotFound
 from app.main import DB
 from app.ratelimit import limit
-from app.schemas import JobImportIn, JobImportResult, JobSearchIn, JobSearchResult, JobsPage, JobOut, MatchOut, ShortlistIn
+from app.schemas import JobImportIn, JobImportResult, JobOut, JobSearchIn, JobSearchResult, JobsPage, MatchOut, ShortlistIn
 from app.services import jobs as svc
 
 router = APIRouter(tags=["jobs"])
