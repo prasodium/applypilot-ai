@@ -42,3 +42,24 @@ def profile(client):
     r = client.put("/api/profile", json=SYNTHETIC_PROFILE)
     assert r.status_code == 200, r.text
     return r.json()
+
+
+@pytest.fixture()
+def candidate(client, profile):
+    client.patch("/api/profile", json={"summary": "Backend engineer who enjoys reliable systems."})
+    for s in ("Python", "SQL", "Docker", "Git"):
+        client.post("/api/profile/skills", json={"name": s})
+    client.post("/api/profile/experience", json={
+        "employer": "Acme Corp", "title": "Software Engineer", "start_date": "2021-01", "is_current": True,
+        "responsibilities": ["Maintained internal reporting tools", "Built REST APIs with Python and FastAPI"],
+        "achievements": ["Reduced report generation time from 40 to 12 minutes"], "technologies": ["Python", "FastAPI"]})
+    client.post("/api/profile/projects", json={"name": "Job Tracker", "summary": "A command-line tool to track job applications",
+                                                "contribution": "Sole developer", "technologies": ["Python", "SQLite"]})
+    client.post("/api/profile/education", json={"institution": "State University", "degree": "B.Sc", "major": "Computer Science",
+                                                  "start_date": "2015", "end_date": "2019"})
+    return client
+
+
+@pytest.fixture()
+def job_id(candidate):
+    return candidate.post("/api/jobs/search", json={"source": "mock", "query": "backend"}).json()["items"][0]["id"]

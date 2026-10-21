@@ -100,7 +100,7 @@ class MockProvider:
             return FreeTextAnswerOut(missing_information=True, confidence="low",
                                      missing_reason="There are no verified facts about your motivation for this role or company. Please write this answer yourself.")
         question = p.get("untrusted", {}).get("question", "")
-        kw = _tokens(question) | {s.lower() for s in p.get("required_skills", [])}
+        kw = _tokens(question)  # only what the QUESTION asks about; the job's skills must not make unrelated questions "answerable"
         ranked = [x for x in _rank(facts, kw, {"project", "experience"}) if x[0] > 0]
         if not ranked:
             return FreeTextAnswerOut(missing_information=True, confidence="low",

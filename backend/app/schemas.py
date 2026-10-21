@@ -623,3 +623,29 @@ class JobSearchResult(BaseModel):
 
 class ShortlistIn(BaseModel):
     status: Literal["shortlisted", "rejected", "new"]
+
+
+class AnswerDraft(BaseModel):
+    """Typed answer draft (master prompt section 8). `needs_user_input` drafts have an empty answer: unknowns are never filled."""
+
+    question_text: str
+    answer_text: str = ""
+    question_type: QuestionType = QuestionType.OTHER
+    source_fact_ids: list[str] = []
+    confidence: Confidence = Confidence.LOW
+    needs_user_input: bool = True
+    sensitive_or_legal: bool = False
+    word_limit: int | None = None
+    character_limit: int | None = None
+    review_status: ReviewStatus = ReviewStatus.NEEDS_USER_INPUT
+    origin: Literal["generated", "library", "user"] = "generated"
+    notes: str = ""
+
+
+class DraftAnswerIn(BaseModel):
+    label: Annotated[str, Field(min_length=1, max_length=1000)]
+    field_type: Literal["text", "email", "tel", "url", "number", "date", "select", "radio", "checkbox", "textarea", "file"] = "text"
+    options: list[Annotated[str, Field(max_length=200)]] = []
+    max_length: int | None = Field(default=None, ge=1, le=100_000)
+    required: bool = False
+    job_id: int | None = None

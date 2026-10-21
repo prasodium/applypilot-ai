@@ -126,9 +126,9 @@ def create_app(settings: Settings | None = None, *, migrate: bool = True) -> Fas
         return JSONResponse({"error": {"code": "internal_error", "message": "Something went wrong. Check the server log.", "details": {}}},
                             status_code=500)
 
-    from app.api import applications, documents, jobs, meta, profile, workflows
+    from app.api import answers, applications, documents, jobs, meta, profile, workflows
 
-    for r in (meta.router, profile.router, documents.router, jobs.router, applications.router, workflows.router):
+    for r in (meta.router, answers.router, profile.router, documents.router, jobs.router, applications.router, workflows.router):
         app.include_router(r, prefix="/api")
 
     if settings.mount_mock_employer and not settings.is_production:

@@ -11,27 +11,6 @@ from app.config import Settings
 from app.core.grounding import unsupported_numbers
 
 
-@pytest.fixture()
-def candidate(client, profile):
-    client.put("/api/profile", json={"legal_name": "Alex Example", "email": "alex@example.test", "summary": "Backend engineer who enjoys reliable systems."})
-    for s in ("Python", "SQL", "Docker", "Git"):
-        client.post("/api/profile/skills", json={"name": s})
-    client.post("/api/profile/experience", json={
-        "employer": "Acme Corp", "title": "Software Engineer", "start_date": "2021-01", "is_current": True,
-        "responsibilities": ["Maintained internal reporting tools", "Built REST APIs with Python and FastAPI"],
-        "achievements": ["Reduced report generation time from 40 to 12 minutes"], "technologies": ["Python", "FastAPI"]})
-    client.post("/api/profile/projects", json={"name": "Job Tracker", "summary": "A command-line tool to track job applications",
-                                                "contribution": "Sole developer", "technologies": ["Python", "SQLite"]})
-    client.post("/api/profile/education", json={"institution": "State University", "degree": "B.Sc", "major": "Computer Science",
-                                                  "start_date": "2015", "end_date": "2019"})
-    return client
-
-
-@pytest.fixture()
-def job_id(candidate):
-    return candidate.post("/api/jobs/search", json={"source": "mock", "query": "backend"}).json()["items"][0]["id"]
-
-
 def test_tailored_resume_uses_only_confirmed_facts_and_cites_them(candidate, job_id, app):
     from app.core.enums import FactSource
     from app.schemas import SkillIn
